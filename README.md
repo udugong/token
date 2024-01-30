@@ -50,7 +50,7 @@
    ```go
    // 创建令牌管理器
    key := "sign key"
-   tokenManager := jwtcore.NewTokenManagement[Claims, *Claims](key, 10*time.Minute)
+   tokenManager := jwtcore.NewTokenManager[Claims, *Claims](key, 10*time.Minute)
    ```
 
 3. 生成 `jwt`
