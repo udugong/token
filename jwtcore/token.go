@@ -7,8 +7,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// TokenManagement 定义 jwt token 的处理程序.
-type TokenManagement[T jwt.Claims, PT Claims[T]] struct {
+// TokenManager 定义 jwt 的管理程序.
+type TokenManager[T jwt.Claims, PT Claims[T]] struct {
 	EncryptionKey string             // 加密密钥
 	DecryptKey    string             // 解密密钥
 	Method        jwt.SigningMethod  // 签名方式
@@ -27,12 +27,12 @@ type ClaimsOption struct {
 	genIDFn        func() string           // 生成 JWT ID (jti) 的函数
 }
 
-// NewTokenManagement 创建一个 jwt token 的处理服务.
+// NewTokenManager 创建 jwt 管理器.
 // Method: 默认使用 jwt.SigningMethodHS256 对称签名方式.
 // DecryptKey: 默认与 EncryptionKey 相同.
-func NewTokenManagement[T jwt.Claims, PT Claims[T]](encryptionKey string,
-	expire time.Duration, options ...Option[T, PT]) *TokenManagement[T, PT] {
-	manager := &TokenManagement[T, PT]{
+func NewTokenManager[T jwt.Claims, PT Claims[T]](encryptionKey string,
+	expire time.Duration, options ...Option[T, PT]) *TokenManager[T, PT] {
+	manager := &TokenManager[T, PT]{
 		Expire:        expire,
 		EncryptionKey: encryptionKey,
 		DecryptKey:    encryptionKey,
@@ -44,7 +44,7 @@ func NewTokenManagement[T jwt.Claims, PT Claims[T]](encryptionKey string,
 }
 
 // GenerateToken 生成一个 jwt token.
-func (t *TokenManagement[T, PT]) GenerateToken(clm T) (string, error) {
+func (t *TokenManager[T, PT]) GenerateToken(clm T) (string, error) {
 	p := PT(&clm)
 	if t.genSubjectFn != nil {
 		p.SetSubject(t.genSubjectFn())
@@ -67,7 +67,7 @@ func (t *TokenManagement[T, PT]) GenerateToken(clm T) (string, error) {
 }
 
 // VerifyToken 认证 token 并返回 claims 与 error.
-func (t *TokenManagement[T, PT]) VerifyToken(token string) (T, error) {
+func (t *TokenManager[T, PT]) VerifyToken(token string) (T, error) {
 	var zeroClm T
 	clm := zeroClm
 	var clmPtr any = &clm
@@ -83,7 +83,7 @@ func (t *TokenManagement[T, PT]) VerifyToken(token string) (T, error) {
 	return clm, nil
 }
 
-func (t *TokenManagement[T, PT]) WithOptions(opts ...Option[T, PT]) *TokenManagement[T, PT] {
+func (t *TokenManager[T, PT]) WithOptions(opts ...Option[T, PT]) *TokenManager[T, PT] {
 	c := t.clone()
 	for _, opt := range opts {
 		opt.apply(c)
@@ -91,7 +91,7 @@ func (t *TokenManagement[T, PT]) WithOptions(opts ...Option[T, PT]) *TokenManage
 	return c
 }
 
-func (t *TokenManagement[T, PT]) clone() *TokenManagement[T, PT] {
+func (t *TokenManager[T, PT]) clone() *TokenManager[T, PT] {
 	copyHandler := *t
 	return &copyHandler
 }

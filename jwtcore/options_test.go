@@ -30,7 +30,7 @@ func TestWithDecryptKey(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewTokenManagement[MyClaims, *MyClaims](
+			got := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).DecryptKey
 			assert.Equal(t, tt.want, got)
 		})
@@ -59,7 +59,7 @@ func TestWithMethod(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewTokenManagement[MyClaims, *MyClaims](
+			got := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).Method
 			assert.Equal(t, tt.want, got)
 		})
@@ -85,7 +85,7 @@ func TestWithTimeFunc(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewTokenManagement[MyClaims, *MyClaims](
+			got := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).timeFunc().UnixMilli()
 			assert.Equal(t, tt.want, got)
 		})
@@ -118,7 +118,7 @@ func TestWithSetParserOption(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := len(NewTokenManagement[MyClaims, *MyClaims](
+			got := len(NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).parserOptions)
 			assert.Equal(t, tt.want, got)
 		})
@@ -152,7 +152,7 @@ func TestWithAddParserOption(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := len(NewTokenManagement[MyClaims, *MyClaims](
+			got := len(NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).parserOptions)
 			assert.Equal(t, tt.want, got)
 		})
@@ -181,7 +181,7 @@ func TestWithIssuer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewTokenManagement[MyClaims, *MyClaims](
+			got := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).Issuer
 			assert.Equal(t, tt.want, got)
 		})
@@ -215,7 +215,7 @@ func TestWithGenSubjectFunc(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			genSubjectFn := NewTokenManagement[MyClaims, *MyClaims](
+			genSubjectFn := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).genSubjectFn
 			if genSubjectFn != nil {
 				assert.Equal(t, tt.want, genSubjectFn())
@@ -256,7 +256,7 @@ func TestWithGenAudienceFunc(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			genAudienceFn := NewTokenManagement[MyClaims, *MyClaims](
+			genAudienceFn := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).genAudienceFn
 			if genAudienceFn != nil {
 				assert.Equal(t, tt.want, genAudienceFn())
@@ -294,7 +294,7 @@ func TestWithGenNotBeforeFunc(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			genNotBeforeFn := NewTokenManagement[MyClaims, *MyClaims](
+			genNotBeforeFn := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).genNotBeforeFn
 			if genNotBeforeFn != nil {
 				assert.Equal(t, tt.want, genNotBeforeFn())
@@ -332,7 +332,7 @@ func TestWithGenIDFunc(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			genIDFn := NewTokenManagement[MyClaims, *MyClaims](
+			genIDFn := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()).genIDFn
 			if genIDFn != nil {
 				assert.Equal(t, tt.want, genIDFn())
@@ -346,5 +346,5 @@ func TestWithGenIDFunc(t *testing.T) {
 }
 
 func withNop[T jwt.Claims, PT Claims[T]]() Option[T, PT] {
-	return optionFunc[T, PT](func(m *TokenManagement[T, PT]) {})
+	return optionFunc[T, PT](func(m *TokenManager[T, PT]) {})
 }
