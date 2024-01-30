@@ -16,21 +16,21 @@ type MyClaims struct {
 	RegisteredClaims
 }
 
-func TestNewTokenManagement(t *testing.T) {
+func TestNewTokenManager(t *testing.T) {
 	var genIDFn func() string
 	var timeFn func() time.Time
 	type testCase[T jwt.Claims, PT Claims[T]] struct {
 		name          string
 		expire        time.Duration
 		encryptionKey string
-		want          *TokenManagement[T, PT]
+		want          *TokenManager[T, PT]
 	}
 	tests := []testCase[MyClaims, *MyClaims]{
 		{
 			name:          "normal",
 			expire:        defaultExpire,
 			encryptionKey: encryptionKey,
-			want: &TokenManagement[MyClaims, *MyClaims]{
+			want: &TokenManager[MyClaims, *MyClaims]{
 				Expire:        defaultExpire,
 				EncryptionKey: encryptionKey,
 				DecryptKey:    encryptionKey,
@@ -42,7 +42,7 @@ func TestNewTokenManagement(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewTokenManagement[MyClaims, *MyClaims](tt.encryptionKey, tt.expire)
+			got := NewTokenManager[MyClaims, *MyClaims](tt.encryptionKey, tt.expire)
 			got.genIDFn = genIDFn
 			got.timeFunc = timeFn
 			assert.Equal(t, tt.want, got)
@@ -50,7 +50,7 @@ func TestNewTokenManagement(t *testing.T) {
 	}
 }
 
-func TestTokenManagement_GenerateToken(t *testing.T) {
+func TestTokenManager_GenerateToken(t *testing.T) {
 	type testCase[T jwt.Claims, PT Claims[T]] struct {
 		name    string
 		clm     T
@@ -139,7 +139,7 @@ func TestTokenManagement_GenerateToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := NewTokenManagement[MyClaims, *MyClaims](
+			m := NewTokenManager[MyClaims, *MyClaims](
 				encryptionKey, defaultExpire, tt.fn()...)
 			got, err := m.GenerateToken(tt.clm)
 			assert.Equal(t, tt.wantErr, err)
@@ -148,7 +148,7 @@ func TestTokenManagement_GenerateToken(t *testing.T) {
 	}
 }
 
-func TestTokenManagement_VerifyToken(t *testing.T) {
+func TestTokenManager_VerifyToken(t *testing.T) {
 	type testCase[T jwt.Claims, PT Claims[T]] struct {
 		name    string
 		m       token.Manager[T]
@@ -159,7 +159,7 @@ func TestTokenManagement_VerifyToken(t *testing.T) {
 	tests := []testCase[MyClaims, *MyClaims]{
 		{
 			name:    "normal",
-			m:       defaultManagement,
+			m:       defaultManager,
 			token:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsImV4cCI6MTY5NTU3MTgwMCwiaWF0IjoxNjk1NTcxMjAwfQ.B9sIBtCtX5kp8pk0fjpcy-8HVa991qU5L5nles7Nblw",
 			want:    defaultClaims,
 			wantErr: nil,
@@ -167,7 +167,7 @@ func TestTokenManagement_VerifyToken(t *testing.T) {
 		{
 			// token 过期了
 			name: "token_expired",
-			m: NewTokenManagement[MyClaims, *MyClaims](encryptionKey, defaultExpire,
+			m: NewTokenManager[MyClaims, *MyClaims](encryptionKey, defaultExpire,
 				WithTimeFunc[MyClaims, *MyClaims](func() time.Time {
 					return time.UnixMilli(1695671200000)
 				}),
@@ -179,7 +179,7 @@ func TestTokenManagement_VerifyToken(t *testing.T) {
 		{
 			// token 签名错误
 			name:  "bad_sign_key",
-			m:     defaultManagement,
+			m:     defaultManager,
 			token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsImV4cCI6MTY5NTU3MTgwMCwiaWF0IjoxNjk1NTcxMjAwfQ.jnzq7EJftxHk82jxl645w875Z0C8yn9WG3uGKhQuLm4",
 			wantErr: fmt.Errorf("验证失败: %v",
 				fmt.Errorf("%v: %v", jwt.ErrTokenSignatureInvalid, jwt.ErrSignatureInvalid)),
@@ -187,7 +187,7 @@ func TestTokenManagement_VerifyToken(t *testing.T) {
 		{
 			// 错误的 token
 			name:  "bad_token",
-			m:     defaultManagement,
+			m:     defaultManager,
 			token: "bad_token",
 			wantErr: fmt.Errorf("验证失败: %v: token contains an invalid number of segments",
 				jwt.ErrTokenMalformed),
@@ -213,7 +213,7 @@ var (
 			IssuedAt:  jwt.NewNumericDate(nowTime),
 		},
 	}
-	defaultManagement = NewTokenManagement[MyClaims, *MyClaims](
+	defaultManager = NewTokenManager[MyClaims, *MyClaims](
 		encryptionKey, defaultExpire,
 		WithTimeFunc[MyClaims, *MyClaims](func() time.Time {
 			return nowTime
