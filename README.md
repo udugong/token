@@ -8,7 +8,7 @@
 
 # usage
 
-下载安装：`go get github.com/udugong/token`
+下载安装：`go get github.com/udugong/token@latest`
 
 - [jwt 的使用](#jwtcore-package)
 
