@@ -44,13 +44,13 @@
 
 2. 创建令牌管理器
 
-   创建令牌管理器需要传两个参数：签名密钥、过期时间，以及确定类型必须设置步骤1的结构体以及其指针。该服务默认使用 `SHA256`
+   创建令牌管理器需要传两个参数：签名密钥、过期时间，以及插入实现 `jwtcore.Claims[T jwt.Claims]` 接口的具体类型。该服务默认使用 `SHA256`
    作为签名方式，因此加密密钥与解密密钥相同。
 
    ```go
    // 创建令牌管理器
    key := "sign key"
-   tokenManager := jwtcore.NewTokenManager[Claims, *Claims](key, 10*time.Minute)
+   tokenManager := jwtcore.NewTokenManager[Claims](key, 10*time.Minute)
    ```
 
 3. 生成 `jwt`
