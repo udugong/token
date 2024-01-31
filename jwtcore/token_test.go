@@ -42,7 +42,7 @@ func TestNewTokenManager(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewTokenManager[MyClaims, *MyClaims](tt.encryptionKey, tt.expire)
+			got := NewTokenManager[MyClaims](tt.encryptionKey, tt.expire)
 			got.genIDFn = genIDFn
 			got.timeFunc = timeFn
 			assert.Equal(t, tt.want, got)
@@ -64,7 +64,7 @@ func TestTokenManager_GenerateToken(t *testing.T) {
 			clm:  defaultClaims,
 			fn: func() []Option[MyClaims, *MyClaims] {
 				return []Option[MyClaims, *MyClaims]{
-					WithTimeFunc[MyClaims, *MyClaims](
+					WithTimeFunc[MyClaims](
 						func() time.Time { return nowTime },
 					),
 				}
@@ -77,10 +77,10 @@ func TestTokenManager_GenerateToken(t *testing.T) {
 			clm:  defaultClaims,
 			fn: func() []Option[MyClaims, *MyClaims] {
 				return []Option[MyClaims, *MyClaims]{
-					WithTimeFunc[MyClaims, *MyClaims](
+					WithTimeFunc[MyClaims](
 						func() time.Time { return nowTime },
 					),
-					WithGenSubjectFunc[MyClaims, *MyClaims](
+					WithGenSubjectFunc[MyClaims](
 						func() string { return "subject" },
 					),
 				}
@@ -93,10 +93,10 @@ func TestTokenManager_GenerateToken(t *testing.T) {
 			clm:  defaultClaims,
 			fn: func() []Option[MyClaims, *MyClaims] {
 				return []Option[MyClaims, *MyClaims]{
-					WithTimeFunc[MyClaims, *MyClaims](
+					WithTimeFunc[MyClaims](
 						func() time.Time { return nowTime },
 					),
-					WithGenAudienceFunc[MyClaims, *MyClaims](
+					WithGenAudienceFunc[MyClaims](
 						func() jwt.ClaimStrings { return jwt.ClaimStrings{"1"} },
 					),
 				}
@@ -109,10 +109,10 @@ func TestTokenManager_GenerateToken(t *testing.T) {
 			clm:  defaultClaims,
 			fn: func() []Option[MyClaims, *MyClaims] {
 				return []Option[MyClaims, *MyClaims]{
-					WithTimeFunc[MyClaims, *MyClaims](
+					WithTimeFunc[MyClaims](
 						func() time.Time { return nowTime },
 					),
-					WithGenNotBeforeFunc[MyClaims, *MyClaims](
+					WithGenNotBeforeFunc[MyClaims](
 						func() time.Time { return nowTime },
 					),
 				}
@@ -125,10 +125,10 @@ func TestTokenManager_GenerateToken(t *testing.T) {
 			clm:  defaultClaims,
 			fn: func() []Option[MyClaims, *MyClaims] {
 				return []Option[MyClaims, *MyClaims]{
-					WithTimeFunc[MyClaims, *MyClaims](
+					WithTimeFunc[MyClaims](
 						func() time.Time { return nowTime },
 					),
-					WithGenIDFunc[MyClaims, *MyClaims](
+					WithGenIDFunc[MyClaims](
 						func() string { return "1" },
 					),
 				}
@@ -168,7 +168,7 @@ func TestTokenManager_VerifyToken(t *testing.T) {
 			// token 过期了
 			name: "token_expired",
 			m: NewTokenManager[MyClaims, *MyClaims](encryptionKey, defaultExpire,
-				WithTimeFunc[MyClaims, *MyClaims](func() time.Time {
+				WithTimeFunc[MyClaims](func() time.Time {
 					return time.UnixMilli(1695671200000)
 				}),
 			),
@@ -215,10 +215,10 @@ var (
 	}
 	defaultManager = NewTokenManager[MyClaims, *MyClaims](
 		encryptionKey, defaultExpire,
-		WithTimeFunc[MyClaims, *MyClaims](func() time.Time {
+		WithTimeFunc[MyClaims](func() time.Time {
 			return nowTime
 		}),
-		WithAddParserOption[MyClaims, *MyClaims](jwt.WithTimeFunc(
+		WithAddParserOption[MyClaims](jwt.WithTimeFunc(
 			func() time.Time {
 				return nowTime
 			},
